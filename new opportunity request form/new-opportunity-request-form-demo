@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Opportunity Request Form</title>
+<style>
+  * { box-sizing: border-box }
+  body { margin: 0; background: #f5f5f5; color: #242424; font: 15px/1.5 Arial, sans-serif }
+  main { max-width: 710px; margin: 24px auto; background: white; border: 1px solid #e4e4e4; padding: 34px clamp(20px, 6vw, 62px) }
+  h1 { font-size: 26px; line-height: 1.2; margin: 0 0 14px }
+  h2 { font-size: 18px; margin: 0 0 18px }
+  h3 { font-size: 15px; margin: 0 }
+  p { margin: 0 0 18px }
+  section { padding: 24px 0 8px; border-top: 1px solid #e5e5e5 }
+  label { display: block; margin-bottom: 17px; font-weight: 600 }
+  .required { color: #b4232d }
+  input, select, textarea { display: block; width: 100%; margin-top: 5px; border: 1px solid #bfc1c4; border-radius: 5px; padding: 9px 10px; min-height: 39px; background: white; color: inherit; font: 400 15px Arial, sans-serif }
+  textarea { min-height: 80px; resize: vertical }
+  :focus-visible { outline: 2px solid #356dcd; outline-offset: 2px }
+  .row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px }
+  .product { border: 1px solid #dedfe2; border-radius: 5px; padding: 16px; margin-bottom: 14px }
+  button { background: white; border: 1px solid #bfc1c4; border-radius: 5px; padding: 8px 12px; color: #254f98; font: 600 14px Arial, sans-serif; cursor: pointer }
+  button:hover { background: #f2f5fb }
+  .submit { color: white; background: #2862bc; border-color: #2862bc }
+  .submit:hover { background: #1e4d97 }
+  .hint { color: #555 }
+  #add { margin-bottom: 17px }
+  #result { padding: 12px; background: #eef4ff; margin-top: 16px }
+  @media(max-width: 550px) { main { margin: 0; border: 0 } }
+</style>
+</head>
+<body>
+<main>
+  <h1>New Opportunity Request Form</h1>
+  <p>Fields marked with an asterisk (<span class="required">*</span>) are required.</p>
+
+  <form id="request">
+    <section>
+      <h2>1. Project Overview</h2>
+      <label>Sales Lead <span class="required">*</span>
+        <select name="lead" required><option value="">Select a sales lead</option><option>Jordan Lee (demo)</option><option>Casey Morgan (demo)</option></select>
+      </label>
+      <label>Customer Name or Development <span class="required">*</span><input name="customer" required></label>
+      <label>Project Type <span class="required">*</span>
+        <select name="type" required><option value="">Select a project type</option><option>New product quote</option><option>Product development</option><option>Existing product update</option></select>
+      </label>
+      <label>Project Description <span class="required">*</span><textarea name="description" required></textarea></label>
+    </section>
+
+    <section>
+      <h2>2. Products</h2>
+      <p class="hint">Use a separate entry when quantity or unit pricing differs.</p>
+      <div id="products"></div>
+      <button type="button" id="add">+ Add another product</button>
+    </section>
+
+    <section>
+      <h2>3. Important Deadlines</h2>
+      <label>Commitment / Confirmation Due Date<input type="date" name="commitment"></label>
+      <label>Artwork Due Date <span class="required">*</span><input type="date" name="artwork" required></label>
+      <label>Samples Due Date<input type="date" name="samples"></label>
+      <label>Customer Requested Delivery Date <span class="required">*</span><input type="date" name="delivery" required></label>
+      <label>PO 1st Ship Date <span class="required">*</span><input type="date" name="ship" required></label>
+    </section>
+
+    <section>
+      <h2>4. Directions &amp; Notes</h2>
+      <label>Artwork Directions <span class="required">*</span><textarea name="directions" required></textarea></label>
+      <label>Notes<textarea name="notes"></textarea></label>
+    </section>
+
+    <div class="row">
+      <span class="hint">Demo only. No data is sent to Smartsheet.</span>
+      <button type="submit" class="submit">Submit</button>
+    </div>
+    <div id="result" role="status" tabindex="-1" hidden></div>
+  </form>
+</main>
+
+<template id="product">
+  <article class="product">
+    <div class="row"><h3></h3><button type="button" class="remove">Remove</button></div>
+    <label>Product Name <span class="required">*</span><input required></label>
+    <label>Number of SKUs <span class="required">*</span><input type="number" min="1" step="1" required></label>
+    <label>Product Category <span class="required">*</span>
+      <select required><option value="">Select a category</option><option>Candles</option><option>Diffusers</option><option>Hand soap</option><option>Other</option></select>
+    </label>
+    <label>Product Description <span class="required">*</span><textarea required></textarea></label>
+    <label>Brand <span class="required">*</span>
+      <select required><option value="">Select a brand</option><option>Customer brand</option><option>OMP brand</option><option>To be confirmed</option></select>
+    </label>
+    <label>Manufacturing Country <span class="required">*</span>
+      <select required><option value="">Select a country</option><option>USA</option><option>China</option><option>Vietnam</option><option>Turkey</option><option>Other</option></select>
+    </label>
+    <label>Country Sold To / Target Customer<input></label>
+    <label>Order Quantity (units) <span class="required">*</span><input type="number" min="1" step="1" required></label>
+    <label>OMP Target Cost (USD per unit)<input type="number" min="0" step="0.01"></label>
+    <label>OMP Estimated Price (USD per unit)<input type="number" min="0" step="0.01"></label>
+    <label>Retailer Target Cost (USD per unit)<input type="number" min="0" step="0.01"></label>
+  </article>
+</template>
+<script>
+  const form = document.querySelector('#request');
+  const products = document.querySelector('#products');
+  const template = document.querySelector('#product');
+  const result = document.querySelector('#result');
+
+  function updateProductLabels() {
+    Array.from(products.children).forEach((card, index) => {
+      card.querySelector('h3').textContent = `Product ${index + 1}`;
+      const remove = card.querySelector('.remove');
+      remove.hidden = products.children.length === 1;
+      remove.setAttribute('aria-label', `Remove product ${index + 1}`);
+    });
+  }
+
+  function addProduct(moveFocus) {
+    const card = template.content.firstElementChild.cloneNode(true);
+    card.querySelector('.remove').addEventListener('click', () => {
+      const neighbor = card.nextElementSibling || card.previousElementSibling;
+      card.remove();
+      updateProductLabels();
+      neighbor.querySelector('input').focus();
+      result.hidden = true;
+    });
+    products.append(card);
+    updateProductLabels();
+    result.hidden = true;
+    if (moveFocus) card.querySelector('input').focus();
+  }
+
+  document.querySelector('#add').addEventListener('click', () => addProduct(true));
+  form.addEventListener('input', () => { result.hidden = true; });
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const count = products.children.length;
+    result.textContent = `Demo request complete for ${form.elements.customer.value} (${count} ${count === 1 ? 'product' : 'products'}).`;
+    result.hidden = false;
+    result.focus();
+  });
+
+  addProduct(false);
+</script>
+</body>
+</html>
